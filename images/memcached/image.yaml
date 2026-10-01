@@ -1,0 +1,8 @@
+name: memcached
+description: Memcached on port 11211
+upstream: docker.io/library/memcached
+version: 1.6.45
+tags: 1.6.45 1.6 latest
+runtime: base-compat
+port: 11211
+listen: dual-stack

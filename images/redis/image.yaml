@@ -3,6 +3,6 @@ description: Redis server on port 6379 (no persistence)
 upstream: docker.io/library/redis
 version: 8.10.2
 tags: 8.10.2 8.10 8 latest
-runtime: base-compat
+loader: dynamic
 port: 6379
 listen: dual-stack

@@ -20,3 +20,5 @@ EOS
 FROM scratch
 COPY --from=build /rootfs /
 COPY redis.conf /etc/redis/redis.conf
+
+CMD ["/usr/bin/redis-server", "/etc/redis/redis.conf"]

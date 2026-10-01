@@ -1,0 +1,30 @@
+name: redis
+
+on:
+  pull_request:
+    paths:
+      - "images/redis/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/redis.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/redis/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/redis.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: redis
+    secrets: inherit

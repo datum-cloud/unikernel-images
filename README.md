@@ -15,8 +15,8 @@ that is meaningful (`8`), and `latest`.
 
 ## What you get
 
-- **Small.** Each image ships only the application and the files it needs;
-  most are a few megabytes.
+- **Small.** Each image ships only the application and the files it needs:
+  single-binary images are a few megabytes, full runtimes under 130 MB.
 - **Fast.** Instances boot in well under a second.
 - **Dual-stack.** Every network image listens on IPv6 and IPv4 out of the box.
   Datum compute networks are IPv6-first, so this is what makes the image
@@ -26,40 +26,37 @@ that is meaningful (`8`), and `latest`.
 
 ## Using an image
 
-```yaml
-apiVersion: compute.datumapis.com/v1alpha
-kind: Workload
-metadata:
-  name: web
-spec:
-  template:
-    spec:
-      runtime:
-        resources:
-          instanceType: datumcloud/d1-standard-2
-        sandbox:
-          containers:
-            - name: nginx
-              image: ghcr.io/datum-cloud/unikernel/nginx:1.30
-              ports:
-                - name: http
-                  port: 8080
-                  protocol: TCP
-      networkInterfaces:
-        - network:
-            name: default
-  placements:
-    - name: default
-      cityCodes: [DFW]
-      scaleSettings:
-        minReplicas: 1
+Deploy one with `datumctl`. The image name is the only thing that changes
+from deploying any other container; `--runtime-class=unikernel` puts the
+Instances on the unikernel tier.
+
+```sh
+datumctl compute deploy web \
+  --image=ghcr.io/datum-cloud/unikernel/nginx:1.30 \
+  --city=DFW --http-port=8080 --runtime-class=unikernel
 ```
 
-Set the container `command`/`args` to run something other than the default
-(for example your own script in the `python` image, mounted from a
-ConfigMap). Instances keep no state across restarts: the root filesystem lives
-in RAM. Tags are rebuilt in place; deploy by digest when you need a
-reproducible rollout.
+A successful deploy prints the HTTPS URL the workload is published on. Omit
+`--http-port` for internal services such as `redis` or `memcached`; they are
+reachable on their port from other Instances on the same network.
+
+Shell images open at a prompt, so they work as scratch machines:
+
+```sh
+datumctl compute deploy scratch \
+  --image=ghcr.io/datum-cloud/unikernel/debian:13 \
+  --city=DFW --runtime-class=unikernel
+datumctl compute exec scratch-dfw-0 -it -- bash
+```
+
+Everything else is ordinary workload management: `datumctl compute scale`,
+`restart`, `instances`, and `destroy` all apply. Use `-f` with a manifest when
+you need more than the flags express, for example a custom `command` or a
+ConfigMap mounted into the `python` image.
+
+Instances keep no state across restarts: the root filesystem lives in RAM.
+Tags are rebuilt in place; deploy by digest when you need a reproducible
+rollout.
 
 ## Images
 

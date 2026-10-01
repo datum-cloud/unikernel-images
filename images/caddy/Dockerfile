@@ -25,3 +25,5 @@ COPY --from=build /out/caddy /usr/bin/caddy
 COPY --from=build /tmp/hosts /etc/hosts
 COPY Caddyfile /etc/caddy/Caddyfile
 COPY index.html /var/www/index.html
+
+CMD ["/usr/bin/caddy", "run", "--config", "/etc/caddy/Caddyfile"]

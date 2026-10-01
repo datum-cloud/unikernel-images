@@ -3,6 +3,7 @@ description: Caddy file server on port 8080 (static PIE, no shared libraries)
 upstream: github.com/caddyserver/caddy
 version: 2.11.4
 tags: 2.11.4 2.11 2 latest
-runtime: base
+# Built as a static PIE: no dynamic loader or shared libraries in the rootfs.
+loader: static
 port: 8080
 listen: dual-stack

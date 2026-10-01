@@ -15,8 +15,8 @@ that is meaningful (`8`), and `latest`.
 
 ## What you get
 
-- **Small.** Each image ships only the application and the files it needs;
-  most are a few megabytes.
+- **Small.** Each image ships only the application and the files it needs,
+  from under 2 MiB for busybox to a few tens of megabytes for full runtimes.
 - **Fast.** Instances boot in well under a second.
 - **Dual-stack.** Every network image listens on IPv6 and IPv4 out of the box.
   Datum compute networks are IPv6-first, so this is what makes the image

@@ -1,0 +1,15 @@
+spec: v0.6
+
+name: busybox
+
+# Alpine's busybox is a musl PIE that links only the musl loader/libc, so the
+# image is ~1.5 MiB. Alpine's busybox-static is ET_EXEC (non-PIE) and the
+# elfloader rejects it, which is why this is not a static build on base.
+runtime: index.unikraft.io/official/base-compat:latest
+
+targets:
+  - kraftcloud/x86_64
+
+rootfs: ./Dockerfile
+
+cmd: ["/bin/sh"]

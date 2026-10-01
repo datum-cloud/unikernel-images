@@ -1,0 +1,9 @@
+# Keeps the GitHub Actions pinned in the workflow current. Upstream image
+# versions live in images/<name>/image.yaml, which Dependabot cannot bump;
+# renovate.json covers those.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

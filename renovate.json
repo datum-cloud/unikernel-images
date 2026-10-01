@@ -1,0 +1,23 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "customManagers": [
+    {
+      "description": "Bump the pinned upstream version in images/<name>/image.yaml from the Docker Hub tag list. Images whose `upstream` is not a docker registry (caddy) are bumped by hand.",
+      "customType": "regex",
+      "fileMatch": ["^images/[^/]+/image\\.yaml$"],
+      "matchStrings": [
+        "upstream: docker\\.io/(?<depName>[^\\s]+)\\nversion: (?<currentValue>[^\\s]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "docker"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchManagers": ["custom.regex"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    }
+  ]
+}

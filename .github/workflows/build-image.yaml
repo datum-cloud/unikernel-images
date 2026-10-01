@@ -7,8 +7,8 @@ name: build-image
 # pushed to ghcr.io/datum-cloud/unikernel/<image> under every tag listed in
 # images/<image>/image.yaml.
 #
-# Pulling the base/base-compat runtimes needs index.unikraft.io credentials
-# allowed to read official/*; the caller passes them with `secrets: inherit`.
+# Images are built with the datumctl compute plugin, which only needs the
+# runner's Docker (for BuildKit) and no registry credentials of its own.
 
 on:
   workflow_call:
@@ -17,16 +17,10 @@ on:
         description: "Directory name under images/"
         required: true
         type: string
-    secrets:
-      UNIKRAFT_INDEX_USER:
-        required: true
-      UNIKRAFT_INDEX_TOKEN:
-        required: true
 
 env:
-  KRAFT_VERSION: "0.12.11"
+  DATUMCTL_COMPUTE_VERSION: "v0.11.1"
   CRANE_VERSION: "v0.20.6"
-  KRAFTKIT_NO_CHECK_UPDATES: "true"
 
 jobs:
   build:
@@ -44,44 +38,36 @@ jobs:
           source hack/lib.sh
           version="$(image_meta "${{ inputs.image }}" version)"
           tags="$(image_meta "${{ inputs.image }}" tags)"
+          loader="$(image_meta "${{ inputs.image }}" loader)"
           [[ -n "$version" ]] || die "images/${{ inputs.image }}/image.yaml has no version"
+          [[ "$loader" == static || "$loader" == dynamic ]] || die "image.yaml loader must be static or dynamic (got '$loader')"
           [[ " $tags " == *" $version "* ]] || die "tags must include the upstream version $version (got: $tags)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tags=$tags" >> "$GITHUB_OUTPUT"
           echo "::notice::${{ inputs.image }} $version -> tags: $tags"
 
-      - name: Install kraft and crane
+      - name: Install datumctl-compute, crane, and erofs-utils
         run: |
           set -eu
-          curl -sSfL "https://github.com/unikraft/kraftkit/releases/download/v${KRAFT_VERSION}/kraft_${KRAFT_VERSION}_linux_amd64.tar.gz" \
-            | sudo tar -xz -C /usr/local/bin kraft
+          curl -sSfL "https://github.com/datum-cloud/compute/releases/download/${DATUMCTL_COMPUTE_VERSION}/datumctl-compute_Linux_x86_64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin datumctl-compute
           curl -sSfL "https://github.com/google/go-containerregistry/releases/download/${CRANE_VERSION}/go-containerregistry_Linux_x86_64.tar.gz" \
             | sudo tar -xz -C /usr/local/bin crane
-          kraft version
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq --no-install-recommends erofs-utils
+          datumctl-compute build --help >/dev/null
           crane version
+          fsck.erofs -V
 
-      - name: Start BuildKit
-        run: docker run -d --name buildkit --privileged moby/buildkit:latest
-
-      - name: Log in to index.unikraft.io
-        env:
-          INDEX_USER: ${{ secrets.UNIKRAFT_INDEX_USER }}
-          INDEX_TOKEN: ${{ secrets.UNIKRAFT_INDEX_TOKEN }}
-        run: |
-          set -eu
-          if [[ -z "$INDEX_USER" || -z "$INDEX_TOKEN" ]]; then
-            echo "::error::UNIKRAFT_INDEX_USER / UNIKRAFT_INDEX_TOKEN are not set; the base runtimes cannot be pulled"
-            exit 1
-          fi
-          kraft login index.unikraft.io --user "$INDEX_USER" --token "$INDEX_TOKEN"
-
+      # The plugin falls back to Docker's built-in BuildKit when BUILDKIT_HOST
+      # is unset; the runner's Docker already has it.
       - name: Build
         run: hack/build.sh "${{ inputs.image }}"
 
       - name: Verify
         run: hack/verify.sh "${{ inputs.image }}"
 
-      - name: Upload OCI layout
+      - name: Upload OCI archive
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.image }}-${{ steps.meta.outputs.version }}

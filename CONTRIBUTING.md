@@ -10,12 +10,12 @@ an image.
    - `image.yaml`: flat `key: value` metadata. `version` is the upstream
      software version and the single place it is pinned; `tags` lists every
      tag to publish (the version, its minor and major lines, `latest`);
-     `runtime` is `base` or `base-compat`; `port` and `listen: dual-stack`
-     describe the default command.
-   - `Dockerfile`: multi-stage; the final stage is `FROM scratch` and ships
-     only what runs. Declare `ARG UPSTREAM_VERSION` and use it in `FROM`.
-   - `Kraftfile`: `spec: v0.6`, the runtime, `targets: [kraftcloud/x86_64]`,
-     `rootfs: ./Dockerfile`, and `cmd`.
+     `loader` is `static` (static PIE, no shared libraries) or `dynamic`
+     (ships its own dynamic loader and library closure); `port` and
+     `listen: dual-stack` describe the default command.
+   - `Dockerfile`: multi-stage; the final stage is `FROM scratch`, ships only
+     what runs, and ends with the exec-form `CMD` that the instance starts.
+     Declare `ARG UPSTREAM_VERSION` and use it in `FROM`.
    - Any sample app or config the default command needs.
 2. Create `.github/workflows/<name>.yaml` by copying an existing image
    workflow and changing the image name. It calls the shared

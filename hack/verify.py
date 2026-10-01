@@ -1,14 +1,15 @@
 #!/usr/bin/env python3
-"""Verify an exported kraft OCI layout tarball (see verify.sh for the checks).
+"""Verify a `datumctl compute build` OCI archive (see verify.sh for the checks).
 
-Standard library only, so it runs unchanged on macOS and ubuntu-latest without
-binutils: ELF and CPIO parsing are done by hand.
+Standard library plus fsck.erofs, so it runs unchanged on macOS and
+ubuntu-latest without binutils: ELF parsing is done by hand.
 """
 
 import io
 import json
 import os
 import struct
+import subprocess
 import sys
 import tarfile
 import tempfile
@@ -18,7 +19,7 @@ import tempfile
 INITRD_LIMIT = 150 * 1024 * 1024
 
 # Directories the glibc loader searches without ld.so.cache, plus those the
-# base runtimes put in LD_LIBRARY_PATH. Images must not rely on ld.so.cache.
+# platform puts in LD_LIBRARY_PATH. Images must not rely on ld.so.cache.
 DEFAULT_LIB_DIRS = [
     "/lib/x86_64-linux-gnu", "/usr/lib/x86_64-linux-gnu",
     "/lib64", "/usr/lib64", "/usr/local/lib", "/usr/lib", "/lib",
@@ -100,39 +101,12 @@ class Elf:
         return needed, runpath
 
 
-def read_cpio(path, dest):
-    """Extract a SVR4 'newc' cpio archive into dest. Returns total file bytes."""
-    total = 0
-    with open(path, "rb") as f:
-        data = f.read()
-    pos = 0
-    while True:
-        if data[pos:pos + 6] != b"070701":
-            raise ValueError("unsupported cpio magic %r at %d" % (data[pos:pos + 6], pos))
-        fields = [int(data[pos + 6 + i * 8:pos + 14 + i * 8], 16) for i in range(13)]
-        mode, filesize, namesize = fields[1], fields[6], fields[11]
-        name_start = pos + 110
-        name = data[name_start:name_start + namesize - 1].decode()
-        body_start = (name_start + namesize + 3) & ~3
-        body = data[body_start:body_start + filesize]
-        pos = (body_start + filesize + 3) & ~3
-        if name == "TRAILER!!!":
-            break
-        out = os.path.join(dest, name.lstrip("/"))
-        kind = mode & 0o170000
-        if kind == 0o040000:
-            os.makedirs(out, exist_ok=True)
-        elif kind == 0o120000:
-            os.makedirs(os.path.dirname(out), exist_ok=True)
-            if os.path.lexists(out):
-                os.remove(out)
-            os.symlink(body.decode(), out)
-        elif kind == 0o100000:
-            os.makedirs(os.path.dirname(out), exist_ok=True)
-            with open(out, "wb") as o:
-                o.write(body)
-            total += filesize
-    return total
+def extract_erofs(path, dest):
+    """Unpack the erofs root filesystem at path into dest with fsck.erofs."""
+    subprocess.run(
+        ["fsck.erofs", "-d0", "--no-preserve", "--extract=" + dest, path],
+        check=True,
+    )
 
 
 def rootfs_path(root, path):
@@ -199,7 +173,7 @@ def check_closure(root, elf_path, elf, interp):
     return sorted(seen), missing
 
 
-def main(tar_path, runtime_kind):
+def main(tar_path, loader):
     with tempfile.TemporaryDirectory() as tmp:
         with tarfile.open(tar_path) as t:
             t.extractall(tmp)
@@ -236,7 +210,7 @@ def main(tar_path, runtime_kind):
         # The cell boots its own platform kernel; an embedded one is booted
         # instead and never receives the cell's start data (no network).
         if kernel:
-            fail("kernel layer present (%.1f MiB); run hack/strip-kernel.py" % (kernel["size"] / 2**20))
+            fail("kernel layer present (%.1f MiB)" % (kernel["size"] / 2**20))
         else:
             ok("no embedded kernel layer (the cell supplies its platform kernel)")
         if not initrd:
@@ -254,8 +228,7 @@ def main(tar_path, runtime_kind):
         else:
             fail("initrd %.1f MiB exceeds the %d MiB boot ceiling" % (initrd_size / 2**20, INITRD_LIMIT / 2**20))
         root = os.path.join(tmp, "rootfs")
-        os.makedirs(root)
-        read_cpio(initrd_file, root)
+        extract_erofs(initrd_file, root)
 
         cmd = config.get("config", {}).get("Cmd") or config.get("config", {}).get("Entrypoint")
         if not cmd:
@@ -281,19 +254,19 @@ def main(tar_path, runtime_kind):
         interp = elf.interp()
         needed, runpath = elf.dynamic()
 
-        if runtime_kind == "base":
+        if loader == "static":
             if interp is None:
                 ok("no PT_INTERP (static)")
             else:
-                fail("PT_INTERP %s present; base has no dynamic loader, build a static PIE" % interp)
+                fail("PT_INTERP %s present; declared static, build a static PIE or declare loader: dynamic" % interp)
             if not needed:
                 ok("no DT_NEEDED entries")
             else:
-                fail("DT_NEEDED present on base runtime: %s" % needed)
-        elif runtime_kind == "base-compat":
+                fail("DT_NEEDED present on a static image: %s" % needed)
+        elif loader == "dynamic":
             if interp is None:
-                # A static PIE also runs on base-compat; nothing further to check.
-                ok("no PT_INTERP (static PIE on base-compat)")
+                # A static PIE needs no loader; nothing further to check.
+                ok("no PT_INTERP (static PIE)")
             else:
                 if os.path.exists(rootfs_path(root, interp)):
                     ok("PT_INTERP %s present in rootfs" % interp)
@@ -307,7 +280,7 @@ def main(tar_path, runtime_kind):
             if os.path.exists(rootfs_path(root, "/etc/ld.so.cache")):
                 print("warn /etc/ld.so.cache shipped; it may reference libraries that are not in the image")
         else:
-            fail("unknown runtime kind %r" % runtime_kind)
+            fail("unknown loader %r (expected static|dynamic)" % loader)
 
     if failures:
         print("\n%d check(s) failed" % len(failures))
@@ -317,5 +290,5 @@ def main(tar_path, runtime_kind):
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
-        sys.exit("usage: verify.py <layout.tar> <base|base-compat>")
+        sys.exit("usage: verify.py <image.tar> <static|dynamic>")
     main(sys.argv[1], sys.argv[2])

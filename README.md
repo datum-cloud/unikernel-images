@@ -65,13 +65,14 @@ reproducible rollout.
 
 Images are added one directory at a time under `images/`; each directory's
 `image.yaml` records the upstream version, the published tags, the default
-port, and the runtime it builds against. Browse the directory for the current
-catalogue.
+port, and whether the entrypoint is a static PIE or ships its own dynamic
+loader. Browse the directory for the current catalogue.
 
 ## Requesting or contributing an image
 
 Open an issue to request one, or send a pull request that adds
-`images/<name>/` together with its workflow. Each image is its own build
+`images/<name>/` together with its workflow. Each image is an ordinary
+Dockerfile packaged with `datumctl compute build`, and each is its own build
 pipeline: a change to that directory builds and verifies the image on the
 pull request, and publishes it when the change lands on `main`.
 [CONTRIBUTING.md](CONTRIBUTING.md) walks through the layout, and

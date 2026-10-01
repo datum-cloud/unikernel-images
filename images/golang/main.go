@@ -1,5 +1,5 @@
 // Default entrypoint: an HTTP server on port 8080. Copy this directory's
-// Dockerfile and Kraftfile to package your own Go service the same way.
+// Dockerfile to package your own Go service the same way.
 package main
 
 import (

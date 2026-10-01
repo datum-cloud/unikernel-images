@@ -20,3 +20,5 @@ RUN --mount=type=cache,target=/root/.cache/go-build \
 
 FROM scratch
 COPY --from=build /server /server
+
+CMD ["/server"]

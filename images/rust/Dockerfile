@@ -14,3 +14,5 @@ RUN rustc -O --target x86_64-unknown-linux-musl \
 
 FROM scratch
 COPY --from=build /server /server
+
+CMD ["/server"]

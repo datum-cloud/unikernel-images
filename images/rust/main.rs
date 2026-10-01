@@ -1,5 +1,5 @@
 //! Default entrypoint: a std-only HTTP server on port 8080. Copy this
-//! directory's Dockerfile and Kraftfile to package your own Rust service.
+//! directory's Dockerfile to package your own Rust service.
 
 use std::io::{Read, Write};
 use std::net::TcpListener;

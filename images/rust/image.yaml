@@ -1,0 +1,8 @@
+name: rust
+description: Reference static-PIE Rust HTTP server on port 8080; the recipe to copy for Rust apps
+upstream: docker.io/library/rust
+version: 1.98.1
+tags: 1.98.1 1.98 latest
+runtime: base
+port: 8080
+listen: dual-stack

@@ -3,8 +3,8 @@
 #
 #   hack/push.sh <image>
 #
-# Pushes the exported OCI layout (index + kraftcloud manifest) with crane so the
-# platform metadata that kraft wrote survives untouched, then adds the
+# Pushes the built OCI archive (index + kraftcloud manifest) with crane so the
+# platform metadata the build wrote survives untouched, then adds the
 # remaining tags server-side. Authenticate first with `crane auth login`.
 # Point REGISTRY at a local registry (e.g. localhost:5555/unikernel) to inspect
 # an image without publishing it.

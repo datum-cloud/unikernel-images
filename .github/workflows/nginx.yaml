@@ -1,0 +1,30 @@
+name: nginx
+
+on:
+  pull_request:
+    paths:
+      - "images/nginx/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/nginx.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/nginx/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/nginx.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: nginx
+    secrets: inherit

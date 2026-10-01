@@ -1,0 +1,8 @@
+name: nginx
+description: nginx serving static files from /wwwroot on port 8080
+upstream: docker.io/library/nginx
+version: 1.30.5
+tags: 1.30.5 1.30 latest
+runtime: base-compat
+port: 8080
+listen: dual-stack

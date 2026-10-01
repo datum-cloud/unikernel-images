@@ -33,3 +33,5 @@ FROM scratch
 COPY --from=build /rootfs /
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY index.html /wwwroot/index.html
+
+CMD ["/usr/bin/nginx", "-c", "/etc/nginx/nginx.conf"]

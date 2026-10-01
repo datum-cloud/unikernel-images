@@ -15,3 +15,5 @@ EOS
 
 FROM scratch
 COPY --from=build / /
+
+CMD ["/bin/bash"]

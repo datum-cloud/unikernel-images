@@ -3,4 +3,4 @@ description: Minimal Debian rootfs (debian:<version>-slim) with bash as the entr
 upstream: docker.io/library/debian
 version: 13.7
 tags: 13.7 13 trixie latest
-runtime: base-compat
+loader: dynamic

@@ -3,4 +3,4 @@ description: Minimal Ubuntu rootfs (ubuntu:<version>) with bash as the entrypoin
 upstream: docker.io/library/ubuntu
 version: 26.04
 tags: 26.04 latest
-runtime: base-compat
+loader: dynamic

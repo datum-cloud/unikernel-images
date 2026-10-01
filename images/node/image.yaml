@@ -1,0 +1,8 @@
+name: node
+description: Node.js (musl build); runs /usr/src/server.js (HTTP on 8080) by default
+upstream: docker.io/library/node
+version: 24.21.0
+tags: 24.21.0 24.21 24 latest
+runtime: base-compat
+port: 8080
+listen: dual-stack

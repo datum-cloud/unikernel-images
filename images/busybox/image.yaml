@@ -1,0 +1,10 @@
+name: busybox
+description: BusyBox userland (musl) with /bin/sh as the entrypoint
+upstream: docker.io/library/alpine
+version: 1.37.0
+tags: 1.37.0 1.37 latest
+# Alpine's busybox is a musl PIE that links only the musl loader/libc, so the
+# image is ~1.5 MiB. Alpine's busybox-static is ET_EXEC (non-PIE) and is
+# rejected at boot, which is why the image ships a loader instead.
+loader: dynamic
+alpine: 3.22

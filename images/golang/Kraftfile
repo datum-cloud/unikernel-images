@@ -1,0 +1,14 @@
+spec: v0.6
+
+name: golang
+
+# Static PIE with no interpreter and no shared libraries: runs on the plain
+# elfloader runtime from a scratch rootfs.
+runtime: index.unikraft.io/official/base:latest
+
+targets:
+  - kraftcloud/x86_64
+
+rootfs: ./Dockerfile
+
+cmd: ["/server"]

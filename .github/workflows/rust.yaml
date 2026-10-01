@@ -1,0 +1,30 @@
+name: rust
+
+on:
+  pull_request:
+    paths:
+      - "images/rust/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/rust.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/rust/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/rust.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: rust
+    secrets: inherit

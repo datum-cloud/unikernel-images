@@ -20,3 +20,5 @@ EOS
 
 FROM scratch
 COPY --from=build /rootfs /
+
+CMD ["/bin/sh"]

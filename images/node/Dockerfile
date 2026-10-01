@@ -18,3 +18,5 @@ EOS
 FROM scratch
 COPY --from=build /rootfs /
 COPY server.js /usr/src/server.js
+
+CMD ["/usr/bin/node", "/usr/src/server.js"]

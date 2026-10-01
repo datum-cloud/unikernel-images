@@ -22,3 +22,5 @@ EOS
 
 FROM scratch
 COPY --from=build /rootfs /
+
+CMD ["/usr/bin/memcached", "-u", "root", "-p", "11211"]

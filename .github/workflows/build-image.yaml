@@ -21,6 +21,10 @@ on:
 env:
   DATUMCTL_COMPUTE_VERSION: "v0.11.1"
   CRANE_VERSION: "v0.20.6"
+  BUILDKIT_IMAGE: "moby/buildkit:v0.33.1"
+  # The plugin needs BuildKit's OCI exporter, which the runner's Docker-embedded
+  # BuildKit does not offer, so a standalone buildkitd serves the build.
+  BUILDKIT_HOST: "tcp://127.0.0.1:1234"
 
 jobs:
   build:
@@ -59,8 +63,18 @@ jobs:
           crane version
           fsck.erofs -V
 
-      # The plugin falls back to Docker's built-in BuildKit when BUILDKIT_HOST
-      # is unset; the runner's Docker already has it.
+      - name: Start BuildKit
+        run: |
+          set -eu
+          docker run -d --name buildkit --privileged -p 127.0.0.1:1234:1234 "$BUILDKIT_IMAGE" --addr tcp://0.0.0.0:1234
+          for _ in $(seq 1 30); do
+            docker exec buildkit buildctl --addr tcp://127.0.0.1:1234 debug workers >/dev/null 2>&1 && exit 0
+            sleep 1
+          done
+          docker logs buildkit
+          echo "::error::buildkitd did not become ready"
+          exit 1
+
       - name: Build
         run: hack/build.sh "${{ inputs.image }}"
 

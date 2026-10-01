@@ -4,9 +4,11 @@
 #   hack/build.sh <image>
 #
 # Requires: datumctl with the compute plugin (or the datumctl-compute binary)
-# and a BuildKit the plugin can reach: BUILDKIT_HOST, a local buildkitd, or
-# Docker's built-in BuildKit. The version is passed to the Dockerfile as
-# UPSTREAM_VERSION so image.yaml is the single place a version is pinned.
+# and a BuildKit the plugin can reach: BUILDKIT_HOST (tcp:// or unix://), a
+# local buildkitd, or Docker's built-in BuildKit where it offers the OCI
+# exporter (Docker Desktop and colima do; the GitHub runner's does not). The
+# version is passed to the Dockerfile as UPSTREAM_VERSION so image.yaml is the
+# single place a version is pinned.
 
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 

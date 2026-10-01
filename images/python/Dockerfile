@@ -37,3 +37,5 @@ EOS
 FROM scratch
 COPY --from=build /rootfs /
 COPY server.py /src/server.py
+
+CMD ["/usr/bin/python3", "/src/server.py"]

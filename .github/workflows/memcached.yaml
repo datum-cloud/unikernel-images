@@ -1,0 +1,30 @@
+name: memcached
+
+on:
+  pull_request:
+    paths:
+      - "images/memcached/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/memcached.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/memcached/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/memcached.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: memcached
+    secrets: inherit

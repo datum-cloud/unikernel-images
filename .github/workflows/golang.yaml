@@ -1,0 +1,30 @@
+name: golang
+
+on:
+  pull_request:
+    paths:
+      - "images/golang/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/golang.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/golang/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/golang.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: golang
+    secrets: inherit

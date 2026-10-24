@@ -1,0 +1,9 @@
+name: golang
+description: Reference static-PIE Go HTTP server on port 8080; the recipe to copy for Go apps
+upstream: docker.io/library/golang
+version: 1.27.1
+tags: 1.27.1 1.27 latest
+# Static PIE with no interpreter and no shared libraries.
+loader: static
+port: 8080
+listen: dual-stack

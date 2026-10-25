@@ -2,7 +2,7 @@ name: nginx
 description: nginx serving static files from /wwwroot on port 8080
 upstream: docker.io/library/nginx
 version: 1.31.8
-tags: 1.30.5 1.30 latest
+tags: 1.31.8 1.31 latest
 # nginx is a dynamically linked glibc binary, so the rootfs ships ld-linux and
 # the exact shared-library closure computed with ldd at build time.
 loader: dynamic

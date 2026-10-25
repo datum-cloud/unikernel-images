@@ -32,7 +32,7 @@ Instances on the unikernel tier.
 
 ```sh
 datumctl compute deploy web \
-  --image=ghcr.io/datum-cloud/unikernel/nginx:1.30 \
+  --image=ghcr.io/datum-cloud/unikernel/nginx:1.31 \
   --city=DFW --http-port=8080 --runtime-class=unikernel
 ```
 

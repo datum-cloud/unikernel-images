@@ -1,0 +1,8 @@
+name: python
+description: CPython with the standard library; runs /src/server.py (HTTP on 8080) by default
+upstream: docker.io/library/python
+version: 3.13.15
+tags: 3.13.15 3.13 3 latest
+loader: dynamic
+port: 8080
+listen: dual-stack

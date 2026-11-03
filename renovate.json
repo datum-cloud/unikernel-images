@@ -5,7 +5,9 @@
     {
       "description": "Bump the pinned upstream version in images/<name>/image.yaml from the Docker Hub tag list. Images whose `upstream` is not a docker registry (caddy) are bumped by hand.",
       "customType": "regex",
-      "fileMatch": ["^images/[^/]+/image\\.yaml$"],
+      "managerFilePatterns": [
+        "/^images/[^/]+/image\\.yaml$/"
+      ],
       "matchStrings": [
         "upstream: docker\\.io/(?<depName>[^\\s]+)\\nversion: (?<currentValue>[^\\s]+)"
       ],

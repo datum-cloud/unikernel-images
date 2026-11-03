@@ -1,0 +1,6 @@
+name: ubuntu
+description: Minimal Ubuntu rootfs (ubuntu:<version>) with bash as the entrypoint
+upstream: docker.io/library/ubuntu
+version: 26.04
+tags: 26.04 latest
+loader: dynamic

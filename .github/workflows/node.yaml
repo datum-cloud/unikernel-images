@@ -1,0 +1,30 @@
+name: node
+
+on:
+  pull_request:
+    paths:
+      - "images/node/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/node.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/node/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/node.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: node
+    secrets: inherit

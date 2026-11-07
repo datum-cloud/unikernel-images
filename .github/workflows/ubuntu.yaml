@@ -1,0 +1,30 @@
+name: ubuntu
+
+on:
+  pull_request:
+    paths:
+      - "images/ubuntu/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/ubuntu.yaml"
+  push:
+    branches: [main]
+    paths:
+      - "images/ubuntu/**"
+      - "hack/**"
+      - ".github/workflows/build-image.yaml"
+      - ".github/workflows/ubuntu.yaml"
+  schedule:
+    - cron: "17 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-image.yaml
+    with:
+      image: ubuntu
+    secrets: inherit

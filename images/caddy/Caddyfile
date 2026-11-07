@@ -1,0 +1,10 @@
+{
+	# No admin endpoint: nothing can reach it inside the unikernel.
+	admin off
+}
+
+:8080
+
+root * /var/www
+encode gzip
+file_server

@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Push a built image to the registry under every tag listed in image.yaml.
+# Push a built image to the registry under its version tag and the aliases
+# listed in image.yaml.
 #
 #   hack/push.sh <image>
 #
@@ -15,7 +16,7 @@ image="${1:-}"
 [[ -n "$image" ]] || die "usage: $0 <image>"
 
 version="$(image_meta "$image" version)"
-tags="$(image_meta "$image" tags)"
+tags="$(image_tags "$image")"
 tar="$(image_tar "$image")"
 repo="$REGISTRY/$image"
 [[ -f "$tar" ]] || die "no such file: $tar (run hack/build.sh first)"

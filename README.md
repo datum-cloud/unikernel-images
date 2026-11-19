@@ -61,7 +61,7 @@ rollout.
 ## Images
 
 Images are added one directory at a time under `images/`; each directory's
-`image.yaml` records the upstream version, the published tags, the default
+`image.yaml` records the upstream version, the tag aliases, the default
 port, and whether the entrypoint is a static PIE or ships its own dynamic
 loader. Browse the directory for the current catalogue.
 

@@ -103,9 +103,9 @@ Each image has a workflow under `.github/workflows/<image>.yaml` that calls
 the shared `build-image.yaml`. On a pull request it builds and verifies the
 image and uploads the OCI archive as a workflow artifact. On a push to `main`,
 on the weekly schedule, and on manual dispatch it also pushes the image to
-`ghcr.io/datum-cloud/unikernel/<image>` under every tag listed in
-`image.yaml`, using `GITHUB_TOKEN` with `packages: write`. No other
-credentials are needed.
+`ghcr.io/datum-cloud/unikernel/<image>` under its version tag and the
+aliases listed in `image.yaml`, using `GITHUB_TOKEN` with `packages: write`.
+No other credentials are needed.
 
 Repository setup that is not automated:
 
@@ -114,7 +114,8 @@ Repository setup that is not automated:
   link it to this repository.
 - **Dependency updates**: Renovate bumps `version:` in `image.yaml` from
   Docker Hub tags (patch and minor only) through `renovate.json`, and keeps
-  the workflows' actions current.
+  the workflows' actions current. Every published tag is derived from
+  `version:`, so a Renovate bump needs no other edit.
 
 Recipes for many more applications exist upstream in
 [unikraft-cloud/examples](https://github.com/unikraft-cloud/examples) and

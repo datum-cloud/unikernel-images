@@ -21,11 +21,11 @@ count=0
 for image in $(list_images); do
   log "image $image"
   version="$(image_meta "$image" version)"
-  tags="$(image_meta "$image" tags)"
+  tags="$(image_tags "$image")"
+  log "  tags: $tags"
   loader="$(image_meta "$image" loader)"
   [[ -n "$version" ]] || die "images/$image/image.yaml has no version"
   [[ "$loader" == static || "$loader" == dynamic ]] || die "images/$image/image.yaml loader must be static or dynamic (got '$loader')"
-  [[ " $tags " == *" $version "* ]] || die "images/$image/image.yaml tags must include the upstream version $version (got: $tags)"
   [[ -f "$REPO_ROOT/images/$image/Dockerfile" ]] || die "images/$image has no Dockerfile"
   count=$((count + 1))
 done

@@ -19,6 +19,37 @@ image_meta() {
   sed -n "s/^$2:[[:space:]]*//p" "$file" | sed 's/[[:space:]]*#.*$//; s/^"//; s/"$//'
 }
 
+image_tags() {
+  local image="$1" version aliases alias tag out
+  version="$(image_meta "$image" version)"
+  [[ -n "$version" ]] || die "images/$image/image.yaml has no version"
+  [[ -z "$(image_meta "$image" tags)" ]] \
+    || die "images/$image/image.yaml: replace tags with aliases; the version tag is derived from version"
+  aliases="$(image_meta "$image" aliases)"
+  out="$version"
+  for alias in $aliases; do
+    case "$alias" in
+      major)
+        [[ "$version" == *.* ]] || die "images/$image/image.yaml: alias major needs a dotted version (got $version)"
+        tag="${version%%.*}"
+        ;;
+      minor)
+        [[ "$version" == *.*.* ]] || die "images/$image/image.yaml: alias minor needs a major.minor.patch version (got $version)"
+        tag="$(printf '%s\n' "$version" | cut -d. -f1-2)"
+        ;;
+      [0-9]*)
+        die "images/$image/image.yaml: alias $alias pins a version by hand; use major or minor"
+        ;;
+      *)
+        [[ "$alias" =~ ^[A-Za-z_][A-Za-z0-9_.-]*$ ]] || die "images/$image/image.yaml: alias $alias is not a valid tag"
+        tag="$alias"
+        ;;
+    esac
+    [[ " $out " == *" $tag "* ]] || out="$out $tag"
+  done
+  printf '%s\n' "$out"
+}
+
 image_ref() { echo "$REGISTRY/$1:$(image_meta "$1" version)"; }
 image_tar() { echo "$DIST_DIR/$1-$(image_meta "$1" version).tar"; }
 

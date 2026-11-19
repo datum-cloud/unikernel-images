@@ -8,8 +8,10 @@ an image.
 
 1. Create `images/<name>/` containing:
    - `image.yaml`: flat `key: value` metadata. `version` is the upstream
-     software version and the single place it is pinned; `tags` lists every
-     tag to publish (the version, its minor and major lines, `latest`);
+     software version and the single place it is pinned; the image is always
+     published under `version`, and `aliases` lists the extra tags: `minor`
+     and `major` derive the version's minor and major lines from `version`,
+     and any other word (`latest`, a codename) is published as written;
      `loader` is `static` (static PIE, no shared libraries) or `dynamic`
      (ships its own dynamic loader and library closure); `port` and
      `listen: dual-stack` describe the default command.
@@ -29,9 +31,10 @@ an image.
 
 ## Updating an image
 
-Bump `version` (and `tags`) in `image.yaml`. Renovate proposes these bumps for
-images whose `upstream` is a Docker Hub repository. Versions always track
-upstream: do not introduce tags of your own.
+Bump `version` in `image.yaml`; the version tag and the `minor` and `major`
+aliases follow it. Renovate proposes these bumps for images whose `upstream`
+is a Docker Hub repository. Versions always track upstream: do not introduce
+tags of your own.
 
 ## Conventions
 

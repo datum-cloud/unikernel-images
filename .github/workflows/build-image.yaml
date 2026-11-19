@@ -4,8 +4,8 @@ name: build-image
 #
 # On a pull request the image is built and verified only. On any other event
 # (push to main, schedule, workflow_dispatch) that runs on main, it is also
-# pushed to ghcr.io/datum-cloud/unikernel/<image> under every tag listed in
-# images/<image>/image.yaml.
+# pushed to ghcr.io/datum-cloud/unikernel/<image> under its version tag plus
+# the aliases listed in images/<image>/image.yaml.
 #
 # Images are built with the datumctl compute plugin, which only needs the
 # runner's Docker (for BuildKit) and no registry credentials of its own.
@@ -41,11 +41,10 @@ jobs:
           set -eu
           source hack/lib.sh
           version="$(image_meta "${{ inputs.image }}" version)"
-          tags="$(image_meta "${{ inputs.image }}" tags)"
+          tags="$(image_tags "${{ inputs.image }}")"
           loader="$(image_meta "${{ inputs.image }}" loader)"
           [[ -n "$version" ]] || die "images/${{ inputs.image }}/image.yaml has no version"
           [[ "$loader" == static || "$loader" == dynamic ]] || die "image.yaml loader must be static or dynamic (got '$loader')"
-          [[ " $tags " == *" $version "* ]] || die "tags must include the upstream version $version (got: $tags)"
           echo "version=$version" >> "$GITHUB_OUTPUT"
           echo "tags=$tags" >> "$GITHUB_OUTPUT"
           echo "::notice::${{ inputs.image }} $version -> tags: $tags"

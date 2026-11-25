@@ -1,7 +1,7 @@
 name: redis
 description: Redis server on port 6379 (no persistence)
 upstream: docker.io/library/redis
-version: 8.10.2
+version: 8.12.0
 aliases: minor major latest
 loader: dynamic
 port: 6379
